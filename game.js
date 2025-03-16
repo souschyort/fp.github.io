@@ -27,6 +27,7 @@ export class Game {
     this.bird = new Bird(this.canvas);
 
     this.scoreText = new Text(this.ctx, this.score, 50,15);
+    this.highScoreText = new Text(this.ctx, this.highScore, 50,15)
     this.buttonText = new Text(this.ctx, 'Restart', this.canvas.width - 120,20);
   }
 
@@ -41,6 +42,10 @@ export class Game {
 
   start() {
     this.initializeControls();
+
+    this.highScore = this.getCookie('score')
+    console.log("score " + this.highScore);
+
     this.intervalId = setInterval(() => this.draw(), 10);
   
     this.canvas.addEventListener('click', (e) => {
@@ -113,6 +118,10 @@ export class Game {
 		this.bird = new Bird(this.canvas);
 		this.pipes = [new Pipe(this.canvas)];
 		this.ground = new Ground(this.canvas);
+
+    this.setCookie('score', this.highScore, {secure: true, 'max-score': 3600});
+    console.log("score " + this.highScore )
+
 		this.score = 0;
 		this.frameCount = 0;
 		this.k = 3.5;
@@ -146,4 +155,36 @@ export class Game {
     if (!this.isGameStarted) this.isGameStarted = true;
     this.bird.flap();
   }  
+
+  getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+  }
+
+  setCookie(name, value, options = {}) {
+    options = {
+      path: '/',
+      // при необходимости добавьте другие значения по умолчанию
+      ...options
+    };
+  
+    if (options.expires instanceof Date) {
+      options.expires = options.expires.toUTCString();
+    }
+  
+    let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+  
+    for (let optionKey in options) {
+      updatedCookie += "; " + optionKey;
+      let optionValue = options[optionKey];
+      if (optionValue !== true) {
+        updatedCookie += "=" + optionValue;
+      }
+    }
+  
+    document.cookie = updatedCookie;
+  }
 }
+
