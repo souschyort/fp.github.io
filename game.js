@@ -10,7 +10,7 @@ import { Button } from './button.js';
 
 export class Game {
   SPEED = 3;
-  k = 2.5;
+  k = 3;
   DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
 
   frameCount = 0;
@@ -78,7 +78,9 @@ export class Game {
 
 
   stop() {
-    clearInterval(this.intervalId);
+    this.SPEED = 0;
+    
+    'clearInterval(this.intervalId);'
   }
 
   addDifficult(){
