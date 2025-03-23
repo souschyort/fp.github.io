@@ -7,7 +7,7 @@ export class Bird {
   hitboxWidth = 55;
   hitboxHeight = 35;
   flapPower = 5.3;
-  gravity = 0.21;
+  gravity = 0.315;
 
   static async preloadImage() {
     Bird.birdImg = new Image();

@@ -10,7 +10,7 @@ import { Button } from './button.js';
 
 export class Game {
   SPEED = 3;
-  k = 5;
+  k = 2.5;
   DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
 
   frameCount = 0;
