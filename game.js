@@ -7,10 +7,11 @@ import { Text } from './text.js';
 import { Button } from './button.js';
 
 // rundll32.exe keymgr.dll,KRShowKeyMgr
+// https://hunterd-levelmax.github.io/fb.github.io/
 
 export class Game {
-  SPEED = 3;
-  k = 3;
+  SPEED = 1.8;
+  k = 2.8;
   DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
 
   frameCount = 0;
@@ -78,9 +79,7 @@ export class Game {
 
 
   stop() {
-    this.SPEED = 0;
-    
-    setTimeout("clearInterval(this.intervalId);", 3000)
+    clearInterval(this.intervalId);
   }
 
   addDifficult(){
@@ -142,9 +141,9 @@ restartGame() {
 
   this.score = 0;
   this.frameCount = 0;
-  this.k = 3.5;
+  this.k = 2.8;
   this.DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
-  this.SPEED = 3;
+  this.SPEED = 1.8;
 }
 
   updatePipes() {
