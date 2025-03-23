@@ -80,7 +80,7 @@ export class Game {
   stop() {
     this.SPEED = 0;
     
-    'clearInterval(this.intervalId);'
+    setTimeout("clearInterval(this.intervalId);", 3000)
   }
 
   addDifficult(){
