@@ -4,6 +4,9 @@ import { Ground } from './ground.js';
 import { Bird } from './bird.js';
 import { checkCollision } from './collision.js';
 import { Text } from './text.js';
+import { Button } from './button.js';
+
+// rundll32.exe keymgr.dll,KRShowKeyMgr
 
 export class Game {
   SPEED = 3;
@@ -12,6 +15,7 @@ export class Game {
 
   frameCount = 0;
   score = 0;
+  scoreRecord = 0;
   isGameStarted = false;
 
   constructor(canvas) {
@@ -26,9 +30,15 @@ export class Game {
     this.ground = new Ground(this.canvas);
     this.bird = new Bird(this.canvas);
 
-    this.scoreText = new Text(this.ctx, this.score, 50,15);
-    this.highScore = new Text(this.ctx, this.score, 50,65)
-    this.buttonText = new Text(this.ctx, 'Restart', this.canvas.width - 120,20);
+    this.button = new Button(this.canvas);
+
+    this.scoreText = new Text(this.ctx, this.score, this.canvas.width / 2, 65);
+
+    this.scoreRecord = parseInt(this.getCookie('score')) || 0;
+
+    this.scoreRecordText = new Text(this.ctx, this.scoreRecord, 50, 15);
+
+    this.buttonText = new Text(this.ctx, 'Restart', this.canvas.width - 120, 20);
   }
 
   async loadAssets() {
@@ -36,18 +46,18 @@ export class Game {
       loadImage(this.BG_IMG, './assets/bg.png'),
       Pipe.preloadImages(),
       Ground.preloadImage(),
-      Bird.preloadImage()
+      Bird.preloadImage(),
+      Button.preloadImage()
     ]);
   }
-
+ 
   start() {
     this.initializeControls();
-
-    this.highScore = this.getCookie('score')
-
-
     this.intervalId = setInterval(() => this.draw(), 10);
-  
+
+    this.scoreRecord = this.getCookie('score');
+    this.scoreRecordText = new Text(this.ctx, this.scoreRecord, 50,65);
+
     this.canvas.addEventListener('click', (e) => {
         const rect = this.canvas.getBoundingClientRect(); // Получаем позицию канваса на странице
         const x = e.clientX - rect.left; // Координата X относительно канваса
@@ -108,34 +118,32 @@ export class Game {
       
       this.update(); //обновление логики
 
-      this.scoreText = new Text(this.ctx, this.score, 50,15);
+      this.scoreText = new Text(this.ctx, this.score, this.canvas.width / 2, 65);
+      this.scoreRecordText = new Text(this.ctx, this.scoreRecord, 50, 15);
+      this.button.draw()
+    //  this.buttonText = new Text(this.ctx, 'Restart', this.canvas.width - 120,20);
 
-      this.highScore = new Text(this.ctx, this.highScore, 50,65)
-
-      this.buttonText = new Text(this.ctx, 'Restart', this.canvas.width - 120,20);
 }
 
-  restartGame(){
-    clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.draw(), 10);
-		this.bird = new Bird(this.canvas);
-		this.pipes = [new Pipe(this.canvas)];
-		this.ground = new Ground(this.canvas);
+restartGame() {
+  clearInterval(this.intervalId);
+  this.intervalId = setInterval(() => this.draw(), 10);
+  this.bird = new Bird(this.canvas);
+  this.pipes = [new Pipe(this.canvas)];
+  this.ground = new Ground(this.canvas);
 
-    if (this.score>this.setCookie('score')){
-      this.setCookie('score', this.highScore, {secure: true, 'max-score': 3600});
-    }
-    
-    
-    
-    console.log("score " + this.highScore )
-
-		this.score = 0;
-		this.frameCount = 0;
-		this.k = 3.5;
-		this.DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
-		this.SPEED = 3;
+  // сохранение рекорда в куки
+  if (this.score > this.scoreRecord) {
+    this.scoreRecord = this.score;
+    this.setCookie('score', this.scoreRecord, { secure: true, 'max-age': 3600 });
   }
+
+  this.score = 0;
+  this.frameCount = 0;
+  this.k = 3.5;
+  this.DISTANCE_BETWEEN_PIPES = this.k * Pipe.width;
+  this.SPEED = 3;
+}
 
   updatePipes() {
     for (let i = 0; i < this.pipes.length; i++) {
@@ -164,26 +172,28 @@ export class Game {
     this.bird.flap();
   }  
 
+  // возвращает score из куки
   getCookie(name) {
     let matches = document.cookie.match(new RegExp(
       "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
+    return matches ? decodeURIComponent(matches[1]) : 0; // Возвращаем 0, если куки не найдены
   }
 
+  // сохранение Score в куки
   setCookie(name, value, options = {}) {
     options = {
       path: '/',
       // при необходимости добавьте другие значения по умолчанию
       ...options
     };
-  
+
     if (options.expires instanceof Date) {
       options.expires = options.expires.toUTCString();
     }
-  
+
     let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
-  
+
     for (let optionKey in options) {
       updatedCookie += "; " + optionKey;
       let optionValue = options[optionKey];
@@ -191,8 +201,8 @@ export class Game {
         updatedCookie += "=" + optionValue;
       }
     }
-  
+
     document.cookie = updatedCookie;
   }
-}
 
+}
